@@ -16,7 +16,8 @@ dataFiles = {}
 for dirName in dataDirectories:
     dirName = dirName[:-1] # slice out last trailing slash
     file = open(dirName + '.csv', 'w')
-    file.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % ('filename', 'width', 'height', 'class', 'xmin', 'ymin', 'xmax', 'ymax'))
+    # file.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % ('filename', 'width', 'height', 'class', 'xmin', 'ymin', 'xmax', 'ymax'))
+    file.write("")
     file.close()
     file = open(dirName + '.csv', 'a')
     dataFiles[dirName.replace(dir_path + '/', '', 1)] = file
@@ -70,7 +71,14 @@ for imgNamePath in images:
         # if (h < 50 and w < 50) or h > 200:
         #     continue
         cv.rectangle(imgOrg, (x, y), (x + w, y + h), (255, 255, 0), 2)
-        csvStr = "%s;%s;%s;%s;%s;%s;%s;%s\n" % (imgNamePath, w, h, objectType, x, y, x + w, y + h)
+        # csvStr = "%s;%s;%s;%s;%s;%s;%s;%s\n" % (imgNamePath, w, h, objectType, x, y, x + w, y + h)
+        if(objectType == 'gauge'):
+            objectType = 0
+        if(objectType == 'handwheel'):
+            objectType = 1
+        if(objectType == 'valve'):
+            objectType = 2
+        csvStr = "%s %s,%s,%s,%s,%s\n" % (imgNamePath, x, y, x + w, y + h, objectType)
         dataFiles[dataDir].write(csvStr)
         break
 
@@ -87,3 +95,6 @@ for imgNamePath in images:
 
 # filename,width,height,class,xmin,ymin,xmax,ymax
 # tong-line-tong-torque.png,400,400,gauge,28,146,180,289
+
+# https://github.com/qqwweee/keras-yolo3
+# x_min,y_min,x_max,y_max,class_id
