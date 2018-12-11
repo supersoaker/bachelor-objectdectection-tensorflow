@@ -109,6 +109,8 @@ venv.bak/
 ## Custom ignores
 .idea/
 
+github-repos/
+
 input/
 input_labeled/
 input_test/
