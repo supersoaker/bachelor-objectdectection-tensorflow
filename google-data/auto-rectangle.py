@@ -54,6 +54,7 @@ for imgNamePath in images:
     dataDir = re.findall(regex, imgNamePath)[0][0]
     objectType = re.findall(regex, imgNamePath)[0][1]
     imgName = re.findall(regex, imgNamePath)[0][2]
+    imgNameInt = int(imgName)
 
     # Adding white border, because some images are to big
     # img = cv2.copyMakeBorder(img, 50, 50, 50, 50, cv2.BORDER_CONSTANT, value=[255, 255, 255])
@@ -73,106 +74,114 @@ for imgNamePath in images:
     ctrs = sorted(ctrs, key=cv2.contourArea, reverse=True)[:10]
 
     imgHeight, imgWidth = img.shape
+    imgNameOrg = imgName
+    j = 1
+    while j > -1:
+        if (imageModifyLevel == '2'): # only change the background color
+            img = cv2.cvtColor(imgOrg2, cv2.COLOR_BGR2RGB)
+            lower_white = np.array([245, 245, 245], dtype=np.uint8)
+            upper_white = np.array([255, 255, 255], dtype=np.uint8)
+            mask = cv2.inRange(img, lower_white, upper_white)  # could also use threshold
+            mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (
+                3, 3)))  # "erase" the small white points in the resulting mask
+            mask = cv2.bitwise_not(mask)  # invert mask
+            if(j > 1):
+                if(j == 2):
+                    # load background (could be an image too)
+                    bk = np.full(img.shape, (66, 128, 200), dtype=np.uint8)  # orange bk
+                    # bk = cv2.imread('/Users/mruescher/Desktop/MarlonR.jpg')
+                    # bk = cv2.resize(bk, (imgWidth, imgHeight))
+                if(j == 3):
+                    bk = np.full(img.shape, (0, 0, 0), dtype=np.uint8)  # white bk
+                if(j == 4):
+                    bk = cv2.imread('/Users/mruescher/Desktop/2.png')
+                    bk = cv2.resize(bk, (imgWidth, imgHeight))
+                if(j == 6):
+                    j = -1
+                    break
 
-    if (imageModifyLevel == '2'):
-        img = cv2.cvtColor(imgOrg, cv2.COLOR_BGR2RGB)
-        lower_white = np.array([245, 245, 245], dtype=np.uint8)
-        upper_white = np.array([255, 255, 255], dtype=np.uint8)
-        mask = cv2.inRange(img, lower_white, upper_white)  # could also use threshold
-        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (
-            3, 3)))  # "erase" the small white points in the resulting mask
-        mask = cv2.bitwise_not(mask)  # invert mask
+                # get masked foreground
+                fg_masked = cv2.bitwise_and(img, img, mask=mask)
 
-        # load background (could be an image too)
-        bk = np.full(img.shape, (66, 128, 200), dtype=np.uint8)  # white bk
-        # bk = cv2.imread('/Users/mruescher/Desktop/MarlonR.jpg')
-        # bk = cv2.resize(bk, (imgWidth, imgHeight))
+                # get masked background, mask must be inverted
+                mask = cv2.bitwise_not(mask)
+                bk_masked = cv2.bitwise_and(bk, bk, mask=mask)
 
-        # get masked foreground
-        fg_masked = cv2.bitwise_and(img, img, mask=mask)
+                # combine masked foreground and masked background
+                imgOrg = cv2.bitwise_or(fg_masked, bk_masked)
+                mask = cv2.bitwise_not(mask)  # revert mask to original
+                imgName = imgNameOrg + '-' + str(j)
+            j += 1
+        else:
+            j = -1
 
+        # Foreach container found
+        for cnt in ctrs:
+            x, y, w, h = cv2.boundingRect(cnt)
+            w = x + w
+            h = h + y
 
-        # fg_masked = np.zeros((400, 400, 3), dtype="uint8")
-        # fg_masked[np.where((fg_masked == [0,0,0]).all(axis=2))] = [66, 244, 104]
+            if (imgNameInt == 26):
+                x, y, w, h = (69, 1, 432, 399)
+            elif (imgNameInt == 2):
+                x, y, w, h = (173, 143, 880, 990)
+            elif (imgNameInt == 3):
+                x, y, w, h = (137, 79, 360, 329)
+            elif (imgNameInt == 24):
+                x, y, w, h = (118, 38, 796, 567)
+            elif (imgNameInt == 41):
+                x, y, w, h = (3, 2, 634, 422)
+            elif (imgNameInt == 44):
+                x, y, w, h = (59, 53, 390, 368)
+            elif (imgNameInt == 27):
+                x, y, w, h = (47, 15, 207, 171)
+            elif (imgNameInt == 31):
+                x, y, w, h = (49, 16, 206, 180)
+            elif (imgNameInt == 32):
+                x, y, w, h = (181, 169, 530, 527)
+            elif (imgNameInt == 35):
+                x, y, w, h = (15, 14, 299, 303)
+            elif (imgNameInt == 37):
+                x, y, w, h = (67, 110, 931, 889)
+            elif (imgNameInt == 38):
+                x, y, w, h = (21, 30, 976, 966)
+            elif (imgNameInt == 50):
+                x, y, w, h = (31, 28, 308, 304)
+            elif (imgNameInt == 51):
+                x, y, w, h = (1, 1, 399, 499)
+            elif (imgNameInt == 53):
+                x, y, w, h = (15, 11, 281, 284)
+            elif (imgNameInt == 54):
+                x, y, w, h = (10, 8, 471, 460)
+            elif (imgNameInt == 57):
+                x, y, w, h = (49, 98, 457, 416)
+            elif (imgNameInt == 58):
+                x, y, w, h = (37, 46, 358, 356)
 
-        # cv2.imshow(imgName, fg_masked)
-        # get masked background, mask must be inverted
-        mask = cv2.bitwise_not(mask)
-        bk_masked = cv2.bitwise_and(bk, bk, mask=mask)
-        # cv2.imshow(imgName, bk_masked)
+            w = w - x
+            h = h - y
 
-        # combine masked foreground and masked background
-        imgOrg = cv2.bitwise_or(fg_masked, bk_masked)
-        mask = cv2.bitwise_not(mask)  # revert mask to original
-        # cv2.imshow(imgName, final)
+            cv2.rectangle(imgOrg, (x, y), (x + w, y + h), (66, 244, 104), 2)
+            if (savingType == 'csv-with-array-keys' or savingType == 'csv-with-object-name'):
+                csvStr = "%s;%s;%s;%s;%s;%s;%s;%s\n" % (imgNamePath, w, h, objectType, x, y, x + w, y + h)
+                if (savingType == 'csv-with-array-keys'):
+                    if (objectType == 'gauge'):
+                        objectType = 0
+                    if (objectType == 'handwheel'):
+                        objectType = 1
+                    if (objectType == 'valve'):
+                        objectType = 2
+                    csvStr = "%s %s,%s,%s,%s,%s\n" % (imgNamePath, x, y, x + w, y + h, objectType)
+                dataFiles[dataDir].write(csvStr)
 
-    # Foreach container found
-    for cnt in ctrs:
-        x, y, w, h = cv2.boundingRect(cnt)
-        w = x + w
-        h = h + y
-
-        if (imgName == '26'):
-            x, y, w, h = (69, 1, 432, 399)
-        elif (imgName == '02'):
-            x, y, w, h = (173, 143, 880, 990)
-        elif (imgName == '03'):
-            x, y, w, h = (137, 79, 360, 329)
-        elif (imgName == '24'):
-            x, y, w, h = (118, 38, 796, 567)
-        elif (imgName == '41'):
-            x, y, w, h = (3, 2, 634, 422)
-        elif (imgName == '44'):
-            x, y, w, h = (59, 53, 390, 368)
-        elif (imgName == '27'):
-            x, y, w, h = (47, 15, 207, 171)
-        elif (imgName == '31'):
-            x, y, w, h = (49, 16, 206, 180)
-        elif (imgName == '32'):
-            x, y, w, h = (181, 169, 530, 527)
-        elif (imgName == '35'):
-            x, y, w, h = (15, 14, 299, 303)
-        elif (imgName == '37'):
-            x, y, w, h = (67, 110, 931, 889)
-        elif (imgName == '38'):
-            x, y, w, h = (21, 30, 976, 966)
-        elif (imgName == '50'):
-            x, y, w, h = (31, 28, 308, 304)
-        elif (imgName == '51'):
-            x, y, w, h = (1, 1, 399, 499)
-        elif (imgName == '53'):
-            x, y, w, h = (15, 11, 281, 284)
-        elif (imgName == '54'):
-            x, y, w, h = (10, 8, 471, 460)
-        elif (imgName == '57'):
-            x, y, w, h = (49, 98, 457, 416)
-        elif (imgName == '58'):
-            x, y, w, h = (37, 46, 358, 356)
-
-        w = w - x
-        h = h - y
-
-        cv2.rectangle(imgOrg, (x, y), (x + w, y + h), (66, 244, 104), 2)
-        if (savingType == 'csv-with-array-keys' or savingType == 'csv-with-object-name'):
-            csvStr = "%s;%s;%s;%s;%s;%s;%s;%s\n" % (imgNamePath, w, h, objectType, x, y, x + w, y + h)
-            if (savingType == 'csv-with-array-keys'):
-                if (objectType == 'gauge'):
-                    objectType = 0
-                if (objectType == 'handwheel'):
-                    objectType = 1
-                if (objectType == 'valve'):
-                    objectType = 2
-                csvStr = "%s %s,%s,%s,%s,%s\n" % (imgNamePath, x, y, x + w, y + h, objectType)
-            dataFiles[dataDir].write(csvStr)
-
-        if (savingType == 'voc-xml'):
-            if (int(imgName) <= 20):
-                objectType = 'gauge'
-            if (int(imgName) > 20 <= 40):
-                objectType = 'valve'
-            if (int(imgName) > 40):
-                objectType = 'handwheel'
-            xmlString = """<annotation>
+            if (savingType == 'voc-xml'):
+                if (imgNameInt <= 20):
+                    objectType = 'gauge'
+                if (imgNameInt > 20 <= 40):
+                    objectType = 'valve'
+                if (imgNameInt > 40):
+                    objectType = 'handwheel'
+                xmlString = """<annotation>
     <folder>{objectType}</folder>
     <filename>{imgNamePath}</filename>
     <path>{imgNamePath}</path>
@@ -198,43 +207,44 @@ for imgNamePath in images:
         </bndbox>
     </object>
 </annotation>
-            """.format(
-                imgNamePath=imgName + '.jpg',
-                xmin=x,
-                ymin=y,
-                xmax=x + w,
-                ymax=y + h,
-                objectType=objectType,
-                imgHeight=imgHeight,
-                imgWidth=imgWidth
-            )
-            path = dir_path + xmlFilePathPrefix + dataDir + '/'
-            print(path)
-            cv2.imwrite(path + '/' + imgName + '.jpg', imgOrg)
-            os.makedirs(path, exist_ok=True)
-            file = open(path + '/' + imgName + '.xml', 'w')
-            file.write(xmlString)
-            file.close()
+                """.format(
+                    imgNamePath=imgName + '.jpg',
+                    xmin=x,
+                    ymin=y,
+                    xmax=x + w,
+                    ymax=y + h,
+                    objectType=objectType,
+                    imgHeight=imgHeight,
+                    imgWidth=imgWidth
+                )
+                path = dir_path + xmlFilePathPrefix + dataDir + '/'
+                os.makedirs(path, exist_ok=True)
+                cv2.imwrite(path + '/' + imgName + '.jpg', imgOrg)
+                file = open(path + '/' + imgName + '.xml', 'w')
+                file.write(xmlString)
+                file.close()
 
-        if (savingType == 'Cartucho/mAP'):
-            if (int(imgName) <= 20):
-                objectType = 'gauge'
-            if (int(imgName) > 20 <= 40):
-                objectType = 'valve'
-            if (int(imgName) > 40):
-                objectType = 'handwheel'
-            txtStr = "%s %s %s %s %s\n" % (objectType, x, y, x + w, y + h)
-            path = dir_path + xmlFilePathPrefix + dataDir + '/'
-            file = open(path + '/' + imgName + '.txt', 'w')
-            # file = open(dir_path + '/../github-repos/mAP/ground-truth/' + imgName + '.txt', 'w')
-            file.write(txtStr)
-            file.close()
+            if (savingType == 'Cartucho/mAP'):
+                if (imgNameInt <= 20):
+                    objectType = 'gauge'
+                if (imgNameInt > 20 <= 40):
+                    objectType = 'valve'
+                if (imgNameInt > 40):
+                    objectType = 'handwheel'
+                txtStr = "%s %s %s %s %s\n" % (objectType, x, y, x + w, y + h)
+                path = dir_path + xmlFilePathPrefix + dataDir + '/'
+                os.makedirs(path, exist_ok=True)
+                cv2.imwrite(path + '/' + imgName + '.jpg', imgOrg)
+                file = open(path + '/' + imgName + '.txt', 'w')
+                # file = open(dir_path + '/../github-repos/mAP/ground-truth/' + imgName + '.txt', 'w')
+                file.write(txtStr)
+                file.close()
 
-        # break after first bounding box was found
-        break
+            # break after first bounding box was found
+            break
 
     # Show the image with a python window
-    if(args.showImage == 'true'):
+    if (args.showImage == 'true'):
         cv2.imshow(imgName, imgOrg)
         # Press any key to close the image
         cv2.waitKey(0)
