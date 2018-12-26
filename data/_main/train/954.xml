@@ -1,0 +1,26 @@
+<annotation>
+	<folder>train</folder>
+	<filename>954.jpg</filename>
+	<path>/Users/mruescher/Development/super-projects/bachelor-objectdectection-tensorflow/data/_main/train/954.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>500</width>
+		<height>472</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>handwheel</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>10</xmin>
+			<ymin>8</ymin>
+			<xmax>471</xmax>
+			<ymax>460</ymax>
+		</bndbox>
+	</object>
+</annotation>

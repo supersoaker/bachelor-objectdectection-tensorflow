@@ -1,0 +1,26 @@
+<annotation>
+	<folder>train</folder>
+	<filename>931.jpg</filename>
+	<path>/Users/mruescher/Development/super-projects/bachelor-objectdectection-tensorflow/data/_main/train/931.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>260</width>
+		<height>195</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>valve</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>49</xmin>
+			<ymin>16</ymin>
+			<xmax>206</xmax>
+			<ymax>180</ymax>
+		</bndbox>
+	</object>
+</annotation>
