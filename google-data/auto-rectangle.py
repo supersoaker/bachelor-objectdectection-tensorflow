@@ -103,7 +103,7 @@ for imgNamePath in images:
                 if(j == 4):
                     bk = cv2.imread(args.backgroundImage)
                     bk = cv2.resize(bk, (imgWidth, imgHeight))
-                if(j == 6):
+                if(j == 5):
                     j = -1
                     break
 
