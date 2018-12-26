@@ -5,7 +5,7 @@ import imutils
 import re
 import os
 import argparse
-import urllib
+import urllib.request as urllib
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--savingType', default='voc-xml',
