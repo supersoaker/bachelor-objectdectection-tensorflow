@@ -14,7 +14,9 @@ parser.add_argument('--xmlPath', default='/../data/', help='path where the xmls 
 parser.add_argument('--imageModifyLevel', default='0',
                     help='how much the images will be modified (default: %(default)s)')
 parser.add_argument('--imagePath', default='/../data/_main/*/*.jpg',
-                    help='relative glob path to the image direcoty (default: %(default)s)')
+                    help='relative glob path to the image directory (default: %(default)s)')
+parser.add_argument('--showImage', default='false',
+                    help='should the image be shown after each iteration (default: %(default)s)')
 
 args = parser.parse_args()
 savingType = args.savingType
@@ -74,7 +76,7 @@ for imgNamePath in images:
 
     if (imageModifyLevel == '2'):
         img = cv2.cvtColor(imgOrg, cv2.COLOR_BGR2RGB)
-        lower_white = np.array([250, 250, 250], dtype=np.uint8)
+        lower_white = np.array([245, 245, 245], dtype=np.uint8)
         upper_white = np.array([255, 255, 255], dtype=np.uint8)
         mask = cv2.inRange(img, lower_white, upper_white)  # could also use threshold
         mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (
@@ -83,11 +85,13 @@ for imgNamePath in images:
 
         # load background (could be an image too)
         bk = np.full(img.shape, (66, 128, 200), dtype=np.uint8)  # white bk
+        # bk = cv2.imread('/Users/mruescher/Desktop/MarlonR.jpg')
+        # bk = cv2.resize(bk, (imgWidth, imgHeight))
 
         # get masked foreground
         fg_masked = cv2.bitwise_and(img, img, mask=mask)
 
-#24 10 15 16
+
         # fg_masked = np.zeros((400, 400, 3), dtype="uint8")
         # fg_masked[np.where((fg_masked == [0,0,0]).all(axis=2))] = [66, 244, 104]
 
@@ -98,9 +102,9 @@ for imgNamePath in images:
         # cv2.imshow(imgName, bk_masked)
 
         # combine masked foreground and masked background
-        final = cv2.bitwise_or(fg_masked, bk_masked)
+        imgOrg = cv2.bitwise_or(fg_masked, bk_masked)
         mask = cv2.bitwise_not(mask)  # revert mask to original
-        cv2.imshow(imgName, final)
+        # cv2.imshow(imgName, final)
 
     # Foreach container found
     for cnt in ctrs:
@@ -205,6 +209,7 @@ for imgNamePath in images:
                 imgWidth=imgWidth
             )
             path = dir_path + xmlFilePathPrefix + dataDir + '/'
+            print(path)
             cv2.imwrite(path + '/' + imgName + '.jpg', imgOrg)
             os.makedirs(path, exist_ok=True)
             file = open(path + '/' + imgName + '.xml', 'w')
@@ -229,12 +234,13 @@ for imgNamePath in images:
         break
 
     # Show the image with a python window
-    # cv2.imshow(imgName, imgOrg2)
+    if(args.showImage == 'true'):
+        cv2.imshow(imgName, imgOrg)
+        # Press any key to close the image
+        cv2.waitKey(0)
+        # Clean up
+        cv2.destroyAllWindows()
 
-    # # Press any key to close the image
-    cv2.waitKey(0)
     #
-    # # Clean up
-    cv2.destroyAllWindows()
     print('Verarbeitet: ' + ("%.2f" % (i / len(images) * 100) + '%'))
     i = i + 1
