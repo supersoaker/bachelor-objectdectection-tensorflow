@@ -5,6 +5,7 @@ import imutils
 import re
 import os
 import argparse
+import urllib
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--savingType', default='voc-xml',
@@ -17,6 +18,8 @@ parser.add_argument('--imagePath', default='/../data/_main/*/*.jpg',
                     help='relative glob path to the image directory (default: %(default)s)')
 parser.add_argument('--showImage', default='false',
                     help='should the image be shown after each iteration (default: %(default)s)')
+parser.add_argument('--urlImage', default='https://web-capture.net/thumbnail.jpg',
+                    help='the url for the image which is loaded on modify (default: %(default)s)')
 
 args = parser.parse_args()
 savingType = args.savingType
@@ -73,6 +76,10 @@ for imgNamePath in images:
     ctrs = imutils.grab_contours(ctrs)
     ctrs = sorted(ctrs, key=cv2.contourArea, reverse=True)[:10]
 
+    resp = urllib.urlopen(args.urlImage)
+    exampleImg = np.asarray(bytearray(resp.read()), dtype="uint8")
+    exampleImg = cv2.imdecode(exampleImg, cv2.IMREAD_COLOR)
+
     imgHeight, imgWidth = img.shape
     imgNameOrg = imgName
     j = 1
@@ -94,7 +101,7 @@ for imgNamePath in images:
                 if(j == 3):
                     bk = np.full(img.shape, (0, 0, 0), dtype=np.uint8)  # white bk
                 if(j == 4):
-                    bk = cv2.imread('/Users/mruescher/Desktop/2.png')
+                    bk = exampleImg.copy()
                     bk = cv2.resize(bk, (imgWidth, imgHeight))
                 if(j == 6):
                     j = -1
