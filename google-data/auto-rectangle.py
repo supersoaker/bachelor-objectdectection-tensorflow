@@ -132,7 +132,8 @@ for imgNamePath in images:
             if (j > 1):
                 w = x + w
                 h = h + y
-                bboxes = np.array([[float(x), float(y), float(w),float(h), float(objectType)]])
+                bboxes = np.array([[float(x), float(y), float(w),float(h), float(0)]])
+                # the object is not relevant for data augmentation
                 if (j == 2):
                     imgOrg = mr.randomHorizontalFlip(imgOrg2, bboxes)
                 if (j == 3):
