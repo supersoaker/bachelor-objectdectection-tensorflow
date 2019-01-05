@@ -218,11 +218,11 @@ for imgNamePath in images:
 
             if (savingType == 'voc-xml'):
                 if (imgNameInt <= 20):
-                    objectType = 0
+                    objectType = 'gauge'
                 if (imgNameInt > 20 <= 40):
-                    objectType = 1
+                    objectType = 'valve'
                 if (imgNameInt > 40):
-                    objectType = 2
+                    objectType = 'handwheel'
                 xmlString = """<annotation>
     <folder>{objectType}</folder>
     <filename>{imgNamePath}</filename>
