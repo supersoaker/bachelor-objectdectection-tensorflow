@@ -5,7 +5,10 @@ import imutils
 import re
 import os
 import argparse
+import sys
 import urllib.request as urllib
+
+from DataAugmentationForObjectDetection import mr
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--savingType', default='voc-xml',
@@ -83,8 +86,11 @@ for imgNamePath in images:
     imgHeight, imgWidth = img.shape
     imgNameOrg = imgName
     j = 1
+    x, y, w, h = 0, 0, 0, 0
+    objectTypeNr = 0
     while j > -1:
-        if (imageModifyLevel == '2'): # only change the background color
+
+        if (imageModifyLevel == '2'):  # only change the background color
             img = cv2.cvtColor(imgOrg2, cv2.COLOR_BGR2RGB)
             lower_white = np.array([245, 245, 245], dtype=np.uint8)
             upper_white = np.array([255, 255, 255], dtype=np.uint8)
@@ -92,18 +98,21 @@ for imgNamePath in images:
             mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (
                 3, 3)))  # "erase" the small white points in the resulting mask
             mask = cv2.bitwise_not(mask)  # invert mask
-            if(j > 1):
-                if(j == 2):
+            if (j > 1):
+                if (j == 2):
                     # load background (could be an image too)
                     bk = np.full(img.shape, (66, 128, 200), dtype=np.uint8)  # orange bk
                     # bk = cv2.imread('/Users/mruescher/Desktop/MarlonR.jpg')
                     # bk = cv2.resize(bk, (imgWidth, imgHeight))
-                if(j == 3):
+                if (j == 3):
                     bk = np.full(img.shape, (0, 0, 0), dtype=np.uint8)  # white bk
-                if(j == 4):
-                    bk = cv2.imread(args.backgroundImage)
-                    bk = cv2.resize(bk, (imgWidth, imgHeight))
-                if(j == 5):
+                if (j == 4):
+                    if os.path.exists(args.backgroundImage):
+                        bk = cv2.imread(args.backgroundImage)
+                        bk = cv2.resize(bk, (imgWidth, imgHeight))
+                    else:
+                        print("Please define a background image, or create the following file in working dir : {}'".format(args.backgroundImage))
+                if (j == 5):
                     j = -1
                     break
 
@@ -119,8 +128,31 @@ for imgNamePath in images:
                 mask = cv2.bitwise_not(mask)  # revert mask to original
                 imgName = imgNameOrg + '-' + str(j)
             j += 1
+        elif (imageModifyLevel == '3'):  # only change the background color
+            if (j > 1):
+                w = x + w
+                h = h + y
+                bboxes = np.array([[float(x), float(y), float(w),float(h), float(objectType)]])
+                if (j == 2):
+                    imgOrg = mr.randomHorizontalFlip(imgOrg2, bboxes)
+                if (j == 3):
+                    imgOrg = mr.randomScale(imgOrg2, bboxes)
+                if (j == 4):
+                    imgOrg = mr.randomTranslate(imgOrg2, bboxes)
+                if (j == 5):
+                    imgOrg = mr.randomRotate(imgOrg2, bboxes)
+                if (j == 6):
+                    imgOrg = mr.randomHSV(imgOrg2, bboxes)
+                if (j == 7):
+                    imgOrg = mr.randomShear(imgOrg2, bboxes)
+                if (j == 8):
+                    break
+
+                imgName = imgNameOrg + '-' + str(j)
+            j += 1
         else:
             j = -1
+
 
         # Foreach container found
         for cnt in ctrs:
@@ -168,7 +200,9 @@ for imgNamePath in images:
             w = w - x
             h = h - y
 
-            cv2.rectangle(imgOrg, (x, y), (x + w, y + h), (66, 244, 104), 2)
+            if(j == 2):
+                # first one should get a normal rectangle
+                cv2.rectangle(imgOrg, (x, y), (x + w, y + h), (66, 244, 104), 2)
             if (savingType == 'csv-with-array-keys' or savingType == 'csv-with-object-name'):
                 csvStr = "%s;%s;%s;%s;%s;%s;%s;%s\n" % (imgNamePath, w, h, objectType, x, y, x + w, y + h)
                 if (savingType == 'csv-with-array-keys'):
@@ -183,11 +217,11 @@ for imgNamePath in images:
 
             if (savingType == 'voc-xml'):
                 if (imgNameInt <= 20):
-                    objectType = 'gauge'
+                    objectType = 0
                 if (imgNameInt > 20 <= 40):
-                    objectType = 'valve'
+                    objectType = 1
                 if (imgNameInt > 40):
-                    objectType = 'handwheel'
+                    objectType = 2
                 xmlString = """<annotation>
     <folder>{objectType}</folder>
     <filename>{imgNamePath}</filename>
