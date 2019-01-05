@@ -11,17 +11,13 @@ pip install -r env/requirements.txt
 pip install --ignore-installed --upgrade tensorflow
 ```
 
-export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/mac/gpu/tensorflow_gpu-0.12.1-py3-none-any.whl
-pip install --upgrade $TF_BINARY_URL
-
-export CUDA_HOME=/usr/local/cuda
-export DYLD_LIBRARY_PATH="$CUDA_HOME/lib:$CUDA_HOME:$CUDA_HOME/extras/CUPTI/lib"
-export LD_LIBRARY_PATH=$DYLD_LIBRARY_PATH
-sudo ln -s /usr/local/cuda/lib/libcuda.dylib ln -s /usr/local/cuda ./usr/local/cuda/lib/libcuda.1.dylib
-
-
-#### 
+#### Usage
+generate new images
+```bash
+pythonw google-data/auto-rectangle.py --xmlPath /../data/probe2/ --imageModifyLevel 3 --savingType voc-xml
+```
 
 
 #### Notices
 Using python 3.5 because of "tensorflow-gpu"
+built on https://github.com/llSourcell/YOLO_Object_Detection
