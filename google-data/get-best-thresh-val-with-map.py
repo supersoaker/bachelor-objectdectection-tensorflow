@@ -1,8 +1,14 @@
 import subprocess
 import re
+import argparse
 
-i = 0.17
-while (i < 0.18):
+parser = argparse.ArgumentParser()
+parser.add_argument('--start', default='0.17', help='start threshold value')
+parser.add_argument('--end', default='0.18', help='end threshold value')
+parser.add_argument('--step', default='0.001', help='step for iterating best threshold value')
+
+i = float(parser.start)
+while (i < float(parser.end)):
     print('loading with thresval: ' + str(i))
     subprocess.run([
         './flow --imgdir ./bachelor-objectdectection-tensorflow/data/probe2/test/ --model cfg/tiny-yolo-ipm.cfg --load 255 --gpu 1.0 --threshold ' + str(
@@ -11,4 +17,4 @@ while (i < 0.18):
     output = result.stdout.decode('utf-8')
     p = re.findall(r'mAP = (.*)%', output, re.MULTILINE)
     print(p)
-    i = i + 0.0001
+    i = i + float(parser.step)
